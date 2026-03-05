@@ -1,0 +1,56 @@
+:root {
+  --font-family-base:
+    "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --color-text: #2f3440;
+  --color-text-soft: #5f6574;
+  --color-text-muted: #8d94a3;
+  --color-bg: #f7f8fb;
+  --color-surface: #ffffff;
+  --color-border: #e6e9f0;
+  --color-hover: rgba(47, 52, 64, 0.05);
+  --color-active: rgba(47, 52, 64, 0.08);
+  --shadow-soft: 0 12px 32px rgba(23, 28, 38, 0.06);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --sidebar-width: 260px;
+  --toc-width: 230px;
+  --content-width: 760px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --transition-base: 0.22s;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: var(--font-family-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+button,
+input {
+  font: inherit;
+}
