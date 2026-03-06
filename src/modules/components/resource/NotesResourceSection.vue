@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FileIcon from '../icons/FileIcon.vue'
 import type { NoteItem } from '../../model/types'
 
 defineProps<{
@@ -21,12 +22,7 @@ const emit = defineEmits<{
       :class="{ active: activeNoteId === note.id }"
       @click="emit('select-note', note.id)"
     >
-      <svg viewBox="0 0 24 24" class="node-type-icon file-icon" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm4 18H6V4h7v5h5z"
-        />
-      </svg>
+      <FileIcon class="node-type-icon file-icon" aria-hidden="true" />
       <div class="note-meta">
         <span class="note-title">{{ note.title }}</span>
         <span class="note-date">{{ note.updatedAt }}</span>

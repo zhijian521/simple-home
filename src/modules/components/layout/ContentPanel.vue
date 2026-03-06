@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import HomeContentSection from '../content/HomeContentSection.vue'
+import HomeIcon from '../icons/HomeIcon.vue'
 import NotesContentSection from '../content/NotesContentSection.vue'
+import NotesIcon from '../icons/NotesIcon.vue'
 import type { ModuleKey, NoteItem } from '../../model/types'
 
 defineProps<{
@@ -33,29 +35,12 @@ const emit = defineEmits<{
           :class="{ 'is-active': activeModule === tab }"
           @click="emit('switch-tab', tab)"
         >
-          <svg v-if="tab === 'home'" viewBox="0 0 24 24" class="tab-icon" aria-hidden="true">
-            <path
-              fill="currentColor"
-              d="M4.8 10.2 12 4.8l7.2 5.4V19H4.8v-8.8Zm2 6.8h10.4v-5.8L12 7.3 6.8 11.2V17Z"
-            />
-          </svg>
-          <svg v-else viewBox="0 0 24 24" class="tab-icon" aria-hidden="true">
-            <path
-              fill="currentColor"
-              d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm4 18H6V4h7v5h5z"
-            />
-          </svg>
+          <HomeIcon v-if="tab === 'home'" class="tab-icon" aria-hidden="true" />
+          <NotesIcon v-else class="tab-icon" aria-hidden="true" />
           <span class="tab-text">{{ tab === 'home' ? '首页' : '笔记' }}</span>
           <span class="tab-close" aria-hidden="true" @click.stop="emit('close-tab', tab)">×</span>
         </button>
       </div>
-      <button type="button" class="header-ghost" aria-label="更多">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="6" cy="12" r="1.4" fill="currentColor" />
-          <circle cx="12" cy="12" r="1.4" fill="currentColor" />
-          <circle cx="18" cy="12" r="1.4" fill="currentColor" />
-        </svg>
-      </button>
     </header>
 
     <main class="content-scroll">
