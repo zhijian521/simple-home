@@ -29,6 +29,11 @@ function prefixByRole(role: CliMessage['role']) {
 
 <template>
   <section class="cli-shell" :class="{ 'is-started': cliStarted }" aria-label="CLI 搜索与对话区">
+    <div class="cli-hero" :class="{ 'is-compact': cliStarted }">
+      <p class="cli-badge">LOCAL TERMINAL</p>
+      <h1 class="cli-brand">Simple Home</h1>
+    </div>
+
     <Transition name="cli-reveal">
       <div v-if="cliStarted" class="cli-log" role="log" aria-live="polite">
         <p v-for="message in cliMessages" :key="message.id" class="cli-line" :class="`is-${message.role}`">

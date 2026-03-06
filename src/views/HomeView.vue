@@ -580,11 +580,66 @@ const {
   background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1.15rem;
 }
 
 .cli-shell:not(.is-started) {
   width: min(760px, 100%);
+}
+
+.cli-hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+  user-select: none;
+}
+
+.cli-badge {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--color-text-lighter);
+  opacity: 0.82;
+}
+
+.cli-brand {
+  margin: 0;
+  font-size: clamp(1.45rem, 4vw, 2.45rem);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  font-weight: 650;
+  background: linear-gradient(
+    150deg,
+    rgba(149, 111, 62, 0.95) 0%,
+    rgba(189, 150, 101, 0.96) 55%,
+    rgba(125, 93, 55, 0.95) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 10px rgba(143, 101, 51, 0.1);
+}
+
+.cli-shell.is-started .cli-brand {
+  font-size: clamp(1.18rem, 2.8vw, 1.55rem);
+  letter-spacing: 0.08em;
+}
+
+.cli-shell.is-started .cli-hero {
+  margin-bottom: 0.1rem;
+}
+
+.explorer-page.theme-dark .cli-brand {
+  background: linear-gradient(
+    150deg,
+    rgba(230, 215, 184, 0.95) 0%,
+    rgba(197, 176, 137, 0.96) 55%,
+    rgba(164, 143, 108, 0.95) 100%
+  );
+  text-shadow: 0 0 10px rgba(233, 227, 214, 0.14);
 }
 
 .cli-log {
@@ -831,6 +886,10 @@ input:focus-visible {
   .cli-shell:not(.is-started) {
     width: 100%;
   }
+
+  .cli-brand {
+    letter-spacing: 0.04em;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -838,7 +897,8 @@ input:focus-visible {
   .folder-row,
   .bookmark-row,
   .arrow,
-  .folder-children {
+  .folder-children,
+  .cli-brand {
     transition: none;
   }
 }
