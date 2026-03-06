@@ -23,6 +23,8 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --transition-base: 0.22s;
+  --scrollbar-thumb: rgba(163, 146, 120, 0.22);
+  --scrollbar-thumb-hover: rgba(163, 146, 120, 0.34);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -53,4 +55,28 @@ body {
 button,
 input {
   font: inherit;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }

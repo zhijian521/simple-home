@@ -98,6 +98,8 @@ const {
   --outline-color: rgba(26, 26, 26, 0.35);
   --link-bg: linear-gradient(90deg, rgba(26, 26, 26, 0.07), rgba(26, 26, 26, 0.03));
   --link-border: rgba(26, 26, 26, 0.3);
+  --scrollbar-thumb: rgba(151, 126, 89, 0.2);
+  --scrollbar-thumb-hover: rgba(151, 126, 89, 0.3);
   --font-ui:
     "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --fw-regular: 400;
@@ -153,6 +155,8 @@ const {
   --outline-color: rgba(229, 221, 205, 0.65);
   --link-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
   --link-border: rgba(255, 255, 255, 0.35);
+  --scrollbar-thumb: rgba(233, 227, 214, 0.16);
+  --scrollbar-thumb-hover: rgba(233, 227, 214, 0.26);
 }
 
 .layout-grid {
@@ -370,8 +374,10 @@ const {
 }
 
 .bookmark-row {
-  margin-left: 0;
-  padding-left: calc(1.95rem + var(--bookmark-depth, 0) * 0.95rem);
+  --bookmark-indent: calc(1.90rem + var(--bookmark-depth, 0) * 0.95rem);
+  width: calc(100% - var(--bookmark-indent));
+  margin-left: var(--bookmark-indent);
+  padding-left: 1.15rem;
   font-size: var(--fs-sm);
 }
 
