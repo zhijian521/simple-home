@@ -23,5 +23,11 @@ export interface NoteItem {
   content: string
 }
 
+export interface CliMessage {
+  id: string
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
 export type ThemeMode = 'light' | 'dark'
 export type ModuleKey = 'home' | 'notes'

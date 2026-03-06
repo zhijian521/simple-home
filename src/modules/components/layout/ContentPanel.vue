@@ -3,13 +3,15 @@ import HomeContentSection from '../content/HomeContentSection.vue'
 import HomeIcon from '../icons/HomeIcon.vue'
 import NotesContentSection from '../content/NotesContentSection.vue'
 import NotesIcon from '../icons/NotesIcon.vue'
-import type { ModuleKey, NoteItem } from '../../model/types'
+import type { CliMessage, ModuleKey, NoteItem } from '../../model/types'
 
 defineProps<{
   activeModule: ModuleKey
   openTabs: ModuleKey[]
   contentPanelTitle: string
   searchKeyword: string
+  cliStarted: boolean
+  cliMessages: CliMessage[]
   activeNote?: NoteItem
 }>()
 
@@ -19,6 +21,7 @@ const emit = defineEmits<{
   (event: 'close-tab', module: ModuleKey): void
   (event: 'update:search-keyword', value: string): void
   (event: 'submit-search'): void
+  (event: 'submit-ai-chat'): void
 }>()
 </script>
 
@@ -43,12 +46,15 @@ const emit = defineEmits<{
       </div>
     </header>
 
-    <main class="content-scroll">
+    <main class="content-scroll" :class="{ 'is-home': activeModule === 'home' }">
       <HomeContentSection
         v-if="activeModule === 'home'"
         :search-keyword="searchKeyword"
+        :cli-started="cliStarted"
+        :cli-messages="cliMessages"
         @update:search-keyword="emit('update:search-keyword', $event)"
         @submit-search="emit('submit-search')"
+        @submit-ai-chat="emit('submit-ai-chat')"
       />
       <NotesContentSection v-else :active-note="activeNote" />
     </main>

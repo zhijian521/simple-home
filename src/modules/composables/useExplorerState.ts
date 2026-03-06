@@ -13,7 +13,9 @@ export function useExplorerState() {
   const tabsModule = useModuleTabs()
 
   const resourcePanelTitle = computed(() => (tabsModule.activeModule.value === 'home' ? '书签管理器' : '笔记列表'))
-  const contentPanelTitle = computed(() => (tabsModule.activeModule.value === 'home' ? '搜索模块' : '笔记详情'))
+  const contentPanelTitle = computed(() =>
+    tabsModule.activeModule.value === 'home' ? 'CLI 搜索与对话' : '笔记详情',
+  )
 
   function goHome() {
     tabsModule.activateModule('home')
@@ -63,6 +65,8 @@ export function useExplorerState() {
     activeNoteId: notesModule.activeNoteId,
     sidebarOpen,
     searchKeyword: homeModule.searchKeyword,
+    cliStarted: homeModule.cliStarted,
+    cliMessages: homeModule.cliMessages,
     themeMode,
     activeNote: notesModule.activeNote,
     resourcePanelTitle,
@@ -77,6 +81,7 @@ export function useExplorerState() {
     selectNote: notesModule.selectNote,
     setSearchKeyword: homeModule.setSearchKeyword,
     submitSearch: homeModule.submitSearch,
+    submitAiChat: homeModule.submitAiChat,
     openSidebar,
     closeSidebar,
   }

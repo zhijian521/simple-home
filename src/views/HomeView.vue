@@ -13,6 +13,8 @@ const {
   activeNoteId,
   sidebarOpen,
   searchKeyword,
+  cliStarted,
+  cliMessages,
   themeMode,
   activeNote,
   resourcePanelTitle,
@@ -27,6 +29,7 @@ const {
   selectNote,
   setSearchKeyword,
   submitSearch,
+  submitAiChat,
   openSidebar,
   closeSidebar,
 } = useExplorerState()
@@ -62,12 +65,15 @@ const {
         :open-tabs="openTabs"
         :content-panel-title="contentPanelTitle"
         :search-keyword="searchKeyword"
+        :cli-started="cliStarted"
+        :cli-messages="cliMessages"
         :active-note="activeNote"
         @open-sidebar="openSidebar"
         @switch-tab="switchTab"
         @close-tab="closeTab"
         @update:search-keyword="setSearchKeyword"
         @submit-search="submitSearch"
+        @submit-ai-chat="submitAiChat"
       />
     </div>
 
@@ -446,7 +452,7 @@ const {
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  border-bottom: none;
+  border-bottom: 1px solid var(--ink-08);
 }
 
 .mobile-toggle-btn {
@@ -459,7 +465,6 @@ const {
   display: flex;
   align-items: flex-end;
   margin-top: 3px;
-  overflow: hidden;
   position: relative;
 }
 
@@ -487,7 +492,6 @@ const {
   margin-bottom: 0;
   cursor: pointer;
   position: relative;
-  top: 2px;
   z-index: 1;
   transition:
     background 0.18s ease,
@@ -565,40 +569,152 @@ const {
   background: var(--panel-surface);
 }
 
-.search-box {
-  border: 1px solid var(--ink-08);
-  border-radius: 12px;
-  background: var(--surface-soft);
-  padding: 0.75rem;
-}
-
-.simple-search-box {
-  max-width: 720px;
-}
-
-.search-form {
+.content-scroll.is-home {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.search-form input {
-  flex: 1;
-  height: 36px;
-  border: 1px solid var(--ink-12);
-  border-radius: 8px;
-  background: var(--surface-solid);
-  padding: 0 0.75rem;
+.cli-shell {
+  width: min(920px, 100%);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.cli-shell:not(.is-started) {
+  width: min(760px, 100%);
+}
+
+.cli-log {
+  max-height: 380px;
+  min-height: 260px;
+  overflow-y: auto;
+  padding: 0.5rem 0.15rem 0.85rem;
+  background: transparent;
+}
+
+.cli-line {
+  margin: 0;
+  font-family: 'Cascadia Mono', 'JetBrains Mono', 'Consolas', 'SFMono-Regular', monospace;
+  font-size: calc(var(--fs-body) + 1px);
+  line-height: 1.72;
+  display: flex;
+  gap: 0.62rem;
+  color: var(--color-text-light);
+}
+
+.cli-line + .cli-line {
+  margin-top: 0.4rem;
+}
+
+.cli-line.is-user {
   color: var(--color-text);
 }
 
-.search-form button {
-  height: 36px;
-  padding: 0 0.85rem;
+.cli-line.is-assistant {
+  color: #4d7b68;
+}
+
+.explorer-page.theme-dark .cli-line.is-assistant {
+  color: #8dc5ad;
+}
+
+.cli-prefix {
+  white-space: nowrap;
+  color: var(--color-text-lighter);
+}
+
+.cli-text {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.cli-input-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 38px 38px;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.6rem;
   border: 1px solid var(--ink-12);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  box-shadow: 0 8px 20px var(--ink-06);
+}
+
+.cli-prompt {
+  font-family: 'Cascadia Mono', 'JetBrains Mono', 'Consolas', 'SFMono-Regular', monospace;
+  font-size: calc(var(--fs-body) + 1px);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-lighter);
+  transform: translateY(-1px);
+}
+
+.cli-input-row input {
+  width: 100%;
+  height: 38px;
+  border: 0;
   border-radius: 8px;
+  background: transparent;
+  padding: 0 0.35rem;
+  color: var(--color-text);
+  font-family: 'Cascadia Mono', 'JetBrains Mono', 'Consolas', 'SFMono-Regular', monospace;
+  font-size: calc(var(--fs-body) + 1px);
+}
+
+.cli-input-row input::placeholder {
+  color: var(--color-text-lighter);
+}
+
+.cli-input-row input:focus-visible {
+  outline: none;
+}
+
+.cli-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--ink-12);
+  border-radius: 10px;
   background: var(--surface-solid);
   color: var(--color-text-light);
+  padding: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.cli-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.cli-btn:hover {
+  background: var(--ink-04);
+  color: var(--color-text);
+}
+
+.cli-btn.is-ai {
+  border-color: rgba(63, 111, 92, 0.35);
+  color: #3f6f5c;
+}
+
+.explorer-page.theme-dark .cli-btn.is-ai {
+  border-color: rgba(141, 197, 173, 0.38);
+  color: #8dc5ad;
+}
+
+.cli-reveal-enter-active,
+.cli-reveal-leave-active {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.cli-reveal-enter-from,
+.cli-reveal-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 .note-detail {
@@ -702,6 +818,18 @@ input:focus-visible {
 
   .content-scroll {
     padding: 0.8rem 0.85rem 1.2rem;
+  }
+
+  .content-scroll.is-home {
+    align-items: flex-start;
+  }
+
+  .cli-log {
+    min-height: 200px;
+  }
+
+  .cli-shell:not(.is-started) {
+    width: 100%;
   }
 }
 

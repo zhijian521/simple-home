@@ -8,7 +8,7 @@ export function createInitialTree(): TreeFolder[] {
     {
       id: 'daily-tools',
       name: '常用工具',
-      expanded: true,
+      expanded: false,
       bookmarks: [
         {
           id: 'chatgpt',
@@ -55,7 +55,7 @@ export function createInitialTree(): TreeFolder[] {
     {
       id: 'dev-tech',
       name: '开发技术',
-      expanded: true,
+      expanded: false,
       bookmarks: [
         {
           id: 'github',
