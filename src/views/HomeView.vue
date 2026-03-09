@@ -575,16 +575,20 @@ const {
   justify-content: center;
 }
 
+.content-scroll.is-home .cli-shell {
+  transform: translateY(-38px);
+}
+
 .cli-shell {
-  width: min(920px, 100%);
+  width: min(760px, 100%);
   background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 1.9rem;
 }
 
-.cli-shell:not(.is-started) {
-  width: min(760px, 100%);
+.cli-shell.is-started {
+  gap: 1.45rem;
 }
 
 .cli-hero {
@@ -592,8 +596,8 @@ const {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.35rem;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
   user-select: none;
 }
 
@@ -629,7 +633,7 @@ const {
 }
 
 .cli-shell.is-started .cli-hero {
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.72rem;
 }
 
 .explorer-page.theme-dark .cli-brand {
@@ -643,6 +647,7 @@ const {
 }
 
 .cli-log {
+  width: 100%;
   max-height: 380px;
   min-height: 260px;
   overflow-y: auto;
@@ -763,13 +768,29 @@ const {
 
 .cli-reveal-enter-active,
 .cli-reveal-leave-active {
-  transition: opacity 0.24s ease, transform 0.24s ease;
+  overflow: hidden;
+  will-change: opacity, transform, max-height, filter;
+  transition:
+    opacity 0.56s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.56s cubic-bezier(0.19, 1, 0.22, 1),
+    max-height 0.56s cubic-bezier(0.19, 1, 0.22, 1),
+    filter 0.56s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .cli-reveal-enter-from,
 .cli-reveal-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(30px) scale(0.985);
+  max-height: 0;
+  filter: blur(4px);
+}
+
+.cli-reveal-enter-to,
+.cli-reveal-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  max-height: 440px;
+  filter: blur(0);
 }
 
 .note-detail {
@@ -879,6 +900,10 @@ input:focus-visible {
     align-items: flex-start;
   }
 
+  .content-scroll.is-home .cli-shell {
+    transform: none;
+  }
+
   .cli-log {
     min-height: 200px;
   }
@@ -898,7 +923,9 @@ input:focus-visible {
   .bookmark-row,
   .arrow,
   .folder-children,
-  .cli-brand {
+  .cli-brand,
+  .cli-reveal-enter-active,
+  .cli-reveal-leave-active {
     transition: none;
   }
 }
