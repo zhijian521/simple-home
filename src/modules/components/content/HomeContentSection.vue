@@ -33,6 +33,59 @@ function labelByRole(role: CliMessage['role']) {
   return 'System'
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function renderMarkdown(content: string) {
+  const codeBlocks: string[] = []
+  let html = escapeHtml(content)
+
+  html = html.replace(/```([\w-]*)\n([\s\S]*?)```/g, (_match: string, language: string, code: string) => {
+    const languageClass = language ? ` class="language-${language}"` : ''
+    const block = `<pre class="md-code"><code${languageClass}>${code.trim()}</code></pre>`
+    codeBlocks.push(block)
+    return `@@CODE_BLOCK_${codeBlocks.length - 1}@@`
+  })
+
+  html = html
+    .replace(/^### (.*)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.*)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+
+  html = html.replace(/(?:^|\n)([-*] .+(?:\n[-*] .+)*)/g, (match: string) => {
+    const items = match
+      .trim()
+      .split('\n')
+      .map((line: string) => line.replace(/^[-*] /, '').trim())
+      .map((line: string) => `<li>${line}</li>`)
+      .join('')
+
+    return `\n<ul>${items}</ul>`
+  })
+
+  html = html
+    .split(/\n{2,}/)
+    .map((block: string) => {
+      const trimmed = block.trim()
+      if (!trimmed) return ''
+      if (/^<(h1|h2|h3|ul|pre)/.test(trimmed)) return trimmed
+      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`
+    })
+    .join('')
+
+  return html.replace(/@@CODE_BLOCK_(\d+)@@/g, (_match: string, index: string) => codeBlocks[Number(index)] || '')
+}
+
 const cliLogRef = ref<HTMLDivElement | null>(null)
 
 const displayedMessages = computed<CliMessage[]>(() => {
@@ -48,9 +101,9 @@ const displayedMessages = computed<CliMessage[]>(() => {
 })
 
 watch(
-  () => props.cliMessages.length,
-  async (currentLength, previousLength = 0) => {
-    if (!props.cliStarted || currentLength <= previousLength) return
+  () => props.cliMessages.map((message) => `${message.id}:${message.content.length}`).join('|'),
+  async () => {
+    if (!props.cliStarted || !props.cliMessages.length) return
 
     await nextTick()
     const cliLogElement = cliLogRef.value
@@ -73,7 +126,7 @@ watch(
           id="bookmark-search"
           :value="searchKeyword"
           type="text"
-          placeholder="输入关键词搜索，或直接发起 AI 对话"
+          placeholder="search..."
           aria-label="CLI 输入"
           @input="onInput"
           @keydown.enter.prevent="emit('submit-ai-chat')"
@@ -100,7 +153,8 @@ watch(
             <span class="cli-prefix">{{ prefixByRole(message.role) }}</span>
             <span class="cli-role">{{ labelByRole(message.role) }}</span>
           </div>
-          <span class="cli-text">{{ message.content }}</span>
+          <div v-if="message.role === 'assistant'" class="cli-text cli-markdown" v-html="renderMarkdown(message.content)" />
+          <span v-else class="cli-text">{{ message.content }}</span>
         </div>
       </div>
     </section>
