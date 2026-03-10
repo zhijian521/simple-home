@@ -2,9 +2,6 @@ export interface BookmarkItem {
   id: string
   title: string
   url: string
-  intro: string
-  tags: string[]
-  updatedAt: string
 }
 
 export interface TreeFolder {
@@ -12,7 +9,6 @@ export interface TreeFolder {
   name: string
   expanded: boolean
   bookmarks: BookmarkItem[]
-  folders?: TreeFolder[]
 }
 
 export interface NoteItem {

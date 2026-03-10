@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import TreeFolderNode from './TreeFolderNode.vue'
+import BookmarkIcon from '../icons/BookmarkIcon.vue'
+import ChevronDownIcon from '../icons/ChevronDownIcon.vue'
+import ChevronRightIcon from '../icons/ChevronRightIcon.vue'
+import FolderClosedIcon from '../icons/FolderClosedIcon.vue'
+import FolderOpenIcon from '../icons/FolderOpenIcon.vue'
 import type { TreeFolder } from '../../model/types'
 
 defineProps<{
@@ -15,13 +19,30 @@ const emit = defineEmits<{
 
 <template>
   <div class="tree-scroll">
-    <TreeFolderNode
-      v-for="folder in tree"
-      :key="folder.id"
-      :folder="folder"
-      :active-bookmark-id="activeBookmarkId"
-      @toggle-folder="emit('toggle-folder', $event)"
-      @select-bookmark="emit('select-bookmark', $event)"
-    />
+    <section v-for="folder in tree" :key="folder.id">
+      <button type="button" class="folder-row" @click="emit('toggle-folder', folder.id)">
+        <span class="arrow" aria-hidden="true">
+          <ChevronDownIcon v-if="folder.expanded" class="arrow-icon" />
+          <ChevronRightIcon v-else class="arrow-icon" />
+        </span>
+        <FolderOpenIcon v-if="folder.expanded" class="node-type-icon folder-icon" aria-hidden="true" />
+        <FolderClosedIcon v-else class="node-type-icon folder-icon" aria-hidden="true" />
+        <span>{{ folder.name }}</span>
+      </button>
+
+      <div class="folder-children" :class="{ expanded: folder.expanded }">
+        <button
+          v-for="bookmark in folder.bookmarks"
+          :key="bookmark.id"
+          type="button"
+          class="bookmark-row"
+          :class="{ active: activeBookmarkId === bookmark.id }"
+          @click="emit('select-bookmark', bookmark.id)"
+        >
+          <BookmarkIcon class="node-type-icon file-icon" aria-hidden="true" />
+          <span>{{ bookmark.title }}</span>
+        </button>
+      </div>
+    </section>
   </div>
 </template>

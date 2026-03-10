@@ -5,7 +5,6 @@ import type { ModuleKey, NoteItem, TreeFolder } from '../../model/types'
 
 defineProps<{
   activeModule: ModuleKey
-  sidebarOpen: boolean
   resourcePanelTitle: string
   tree: TreeFolder[]
   activeBookmarkId: string
@@ -14,7 +13,6 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (event: 'close-sidebar'): void
   (event: 'toggle-folder', folderId: string): void
   (event: 'select-bookmark', bookmarkId: string): void
   (event: 'select-note', noteId: string): void
@@ -22,10 +20,9 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <aside class="module-panel resource-panel" :class="{ open: sidebarOpen }" :aria-label="resourcePanelTitle">
+  <aside class="module-panel resource-panel" :aria-label="resourcePanelTitle">
     <header class="resource-header">
       <h2>{{ resourcePanelTitle }}</h2>
-      <button type="button" class="close-btn" @click="emit('close-sidebar')">×</button>
     </header>
 
     <HomeResourceSection
