@@ -16,6 +16,7 @@ VITE_API_BASE_URL=http://127.0.0.1:3001/api
 src/
   config/
     api.ts                       # API 地址配置
+    seo.ts                       # 站点 SEO 配置与生成逻辑
   modules/
     composables/
       useHomeState.ts            # 页面状态与行为入口
@@ -38,6 +39,25 @@ src/
 - 页面状态统一维护在 `src/modules/composables/useHomeState.ts`，避免多层 composable 跳转。
 - `views` 只负责页面结构，样式单独放在 `src/views/home.css`。
 - 公共资源放 `public/`，网站图标使用 `public/logo.png`。
+- 站点 SEO 统一维护在 `src/config/seo.ts`，后续改标题、描述、域名、站点地图只改这一处。
+
+## SEO 配置
+
+当前线上域名已固定为：
+
+```text
+https://home.yuwb.dev
+```
+
+SEO 现在由 `src/config/seo.ts` 统一管理，包含：
+
+- 首页 `title`、`description`、`keywords`
+- `canonical`、Open Graph、Twitter Card
+- `robots.txt`
+- `sitemap.xml`
+- `WebSite` 结构化数据
+
+执行构建后，Vite 会基于这份配置自动生成最终产物，无需再单独手改 `index.html` 或 `public/` 里的 SEO 文件。
 
 ## Vercel 部署
 
