@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import AiActionIcon from '../icons/AiActionIcon.vue'
+import ClearChatIcon from '../icons/ClearChatIcon.vue'
+import DownloadChatIcon from '../icons/DownloadChatIcon.vue'
 import SearchActionIcon from '../icons/SearchActionIcon.vue'
 import type { CliMessage } from '../../model/types'
 
@@ -12,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'update:search-keyword', value: string): void
+  (event: 'clear-cli-session'): void
   (event: 'submit-search'): void
   (event: 'submit-ai-chat'): void
 }>()
@@ -22,15 +25,13 @@ function onInput(event: Event) {
 }
 
 function prefixByRole(role: CliMessage['role']) {
-  if (role === 'user') return 'you@simplehome:~$'
-  if (role === 'assistant') return 'ai@simplehome:~$'
-  return 'sys@simplehome:~$'
+  if (role === 'user') return '$ME:'
+  if (role === 'assistant') return '$AI:'
+  return '$SYS:'
 }
 
-function labelByRole(role: CliMessage['role']) {
-  if (role === 'user') return 'User'
-  if (role === 'assistant') return 'Assistant'
-  return 'System'
+function isPendingAssistantMessage(message: CliMessage) {
+  return message.role === 'assistant' && !message.content.trim()
 }
 
 function escapeHtml(value: string) {
@@ -100,6 +101,41 @@ const displayedMessages = computed<CliMessage[]>(() => {
   ]
 })
 
+const showClearButton = computed(() => props.cliStarted || props.cliMessages.length > 0)
+
+function roleByMessage(role: CliMessage['role']) {
+  if (role === 'user') return 'ME'
+  if (role === 'assistant') return 'AI'
+  return 'SYS'
+}
+
+function createChatMarkdown(messages: CliMessage[]) {
+  const generatedAt = new Date().toLocaleString('zh-CN', { hour12: false })
+  const sections = messages.map((message) => {
+    return [`## ${roleByMessage(message.role)}`, '', message.content || '_empty_', ''].join('\n')
+  })
+
+  return ['# Simple Home Chat History', '', `Generated: ${generatedAt}`, '', ...sections].join('\n')
+}
+
+function downloadChatHistory() {
+  if (!props.cliMessages.length || typeof window === 'undefined') {
+    return
+  }
+
+  const content = createChatMarkdown(props.cliMessages)
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+
+  link.href = url
+  link.download = `simplehome-chat-${timestamp}.md`
+  link.click()
+
+  window.URL.revokeObjectURL(url)
+}
+
 watch(
   () => props.cliMessages.map((message) => `${message.id}:${message.content.length}`).join('|'),
   async () => {
@@ -150,12 +186,44 @@ watch(
       <div ref="cliLogRef" class="cli-log" role="log" aria-live="polite">
         <div v-for="message in displayedMessages" :key="message.id" class="cli-line" :class="`is-${message.role}`">
           <div class="cli-line-head">
-            <span class="cli-prefix">{{ prefixByRole(message.role) }}</span>
-            <span class="cli-role">{{ labelByRole(message.role) }}</span>
+            <span class="cli-prefix" :data-role="message.role">{{ prefixByRole(message.role) }}</span>
           </div>
-          <div v-if="message.role === 'assistant'" class="cli-text cli-markdown" v-html="renderMarkdown(message.content)" />
+          <div v-if="isPendingAssistantMessage(message)" class="cli-text cli-thinking" aria-live="polite">
+            <span>thinking</span>
+            <span class="cli-thinking-dots" aria-hidden="true">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </div>
+          <div
+            v-else-if="message.role === 'assistant'"
+            class="cli-text cli-markdown"
+            v-html="renderMarkdown(message.content)"
+          />
           <span v-else class="cli-text">{{ message.content }}</span>
         </div>
+      </div>
+
+      <div v-if="showClearButton" class="cli-log-actions">
+        <button
+          type="button"
+          class="cli-clear-btn"
+          aria-label="下载聊天记录"
+          title="下载聊天记录"
+          @click="downloadChatHistory"
+        >
+          <DownloadChatIcon />
+        </button>
+        <button
+          type="button"
+          class="cli-clear-btn"
+          aria-label="清空会话"
+          title="清空会话"
+          @click="emit('clear-cli-session')"
+        >
+          <ClearChatIcon />
+        </button>
       </div>
     </section>
   </section>

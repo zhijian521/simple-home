@@ -14,6 +14,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (event: 'update:search-keyword', value: string): void
+  (event: 'clear-cli-session'): void
   (event: 'submit-search'): void
   (event: 'submit-ai-chat'): void
 }>()
@@ -32,6 +33,7 @@ const emit = defineEmits<{
         :cli-started="cliStarted"
         :cli-messages="cliMessages"
         @update:search-keyword="emit('update:search-keyword', $event)"
+        @clear-cli-session="emit('clear-cli-session')"
         @submit-search="emit('submit-search')"
         @submit-ai-chat="emit('submit-ai-chat')"
       />

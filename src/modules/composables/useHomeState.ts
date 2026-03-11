@@ -22,6 +22,7 @@ export function useHomeState() {
   const cliStarted = ref(false)
   const cliMessages = ref<CliMessage[]>([])
   const aiRequestInFlight = ref(false)
+  const currentStreamController = ref<AbortController | null>(null)
 
   const activeNote = computed(() => notes.value.find((note) => note.id === activeNoteId.value))
   const resourcePanelTitle = computed(() => (activeModule.value === 'home' ? '书签管理器' : '笔记列表'))
@@ -69,6 +70,15 @@ export function useHomeState() {
     searchKeyword.value = value
   }
 
+  function clearCliSession() {
+    currentStreamController.value?.abort()
+    currentStreamController.value = null
+    aiRequestInFlight.value = false
+    cliStarted.value = false
+    cliMessages.value = []
+    searchKeyword.value = ''
+  }
+
   function submitSearch() {
     const value = searchKeyword.value.trim()
     if (!value) {
@@ -108,29 +118,42 @@ export function useHomeState() {
       return
     }
 
-    pushMessage(cliMessages.value, 'user', `ai ${value}`)
+    pushMessage(cliMessages.value, 'user', value)
     searchKeyword.value = ''
     aiRequestInFlight.value = true
 
     const assistantMessageId = pushMessage(cliMessages.value, 'assistant', '')
     const requestMessages = buildRequestMessages(cliMessages.value)
+    const abortController = new AbortController()
+    currentStreamController.value = abortController
 
     try {
       let received = ''
 
-      await streamDeepSeekReply(requestMessages, (chunk) => {
-        received += chunk
-        updateMessage(cliMessages.value, assistantMessageId, received)
-      })
+      await streamDeepSeekReply(
+        requestMessages,
+        (chunk) => {
+          received += chunk
+          updateMessage(cliMessages.value, assistantMessageId, received)
+        },
+        abortController.signal,
+      )
 
       if (!received.trim()) {
         updateMessage(cliMessages.value, assistantMessageId, '接口已连接，但没有返回可显示的内容。')
       }
     } catch (error) {
+      if (isAbortError(error)) {
+        return
+      }
+
       removeMessage(cliMessages.value, assistantMessageId)
       const message = error instanceof Error ? error.message : 'AI 请求失败，请稍后重试。'
       pushMessage(cliMessages.value, 'system', message)
     } finally {
+      if (currentStreamController.value === abortController) {
+        currentStreamController.value = null
+      }
       aiRequestInFlight.value = false
     }
   }
@@ -155,6 +178,7 @@ export function useHomeState() {
     selectBookmark,
     selectNote,
     setSearchKeyword,
+    clearCliSession,
     submitSearch,
     submitAiChat,
   }
@@ -206,7 +230,7 @@ function buildRequestMessages(messages: CliMessage[]) {
     },
     ...messages.filter(isConversationMessage).map((message) => ({
       role: message.role,
-      content: message.role === 'user' ? message.content.slice(3) : message.content,
+      content: message.content,
     })),
   ]
 }
@@ -218,12 +242,14 @@ function isConversationMessage(message: CliMessage): message is CliMessage & { r
 async function streamDeepSeekReply(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
   onChunk: (chunk: string) => void,
+  signal?: AbortSignal,
 ) {
   const response = await fetch(apiConfig.deepseekChatCompletionsUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    signal,
     body: JSON.stringify({
       messages,
       stream: true,
@@ -316,4 +342,10 @@ function extractErrorMessage(data: unknown) {
 
   const message = (data as { message?: string }).message
   return typeof message === 'string' ? message : ''
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException
+    ? error.name === 'AbortError'
+    : error instanceof Error && error.name === 'AbortError'
 }

@@ -24,6 +24,7 @@ const {
   goNotes,
   selectNote,
   setSearchKeyword,
+  clearCliSession,
   submitSearch,
   submitAiChat,
 } = useHomeState()
@@ -60,6 +61,7 @@ const {
         :cli-messages="cliMessages"
         :active-note="activeNote"
         @update:search-keyword="setSearchKeyword"
+        @clear-cli-session="clearCliSession"
         @submit-search="submitSearch"
         @submit-ai-chat="submitAiChat"
       />

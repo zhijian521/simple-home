@@ -20,7 +20,7 @@ type PageSeo = {
 
 export const siteConfig = {
   name: 'Simple Home',
-  title: 'Simple Home | 个人导航与起始页',
+  title: 'Simple Home',
   description:
     'Simple Home 是一个聚合常用工具、开发资源、学习站点与个人笔记的轻量起始页，帮助你更快进入日常工作流。',
   url: 'https://home.yuwb.dev',
