@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import './style.css'
+import './styles/global.css'
 import { applyPageSeo } from './config/applySeo'
 import HomeView from './views/HomeView.vue'
 

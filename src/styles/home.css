@@ -1,0 +1,118 @@
+.explorer-page {
+  --color-text: #3a3a3a;
+  --color-text-light: #666;
+  --color-text-lighter: #999;
+  --color-bg-page: #ebe6da;
+  --panel-surface: #f1eadc;
+  --panel-border: rgba(255, 255, 255, 0.4);
+  --surface-soft: rgba(255, 255, 255, 0.5);
+  --ink-01: rgba(0, 0, 0, 0.01);
+  --ink-03: rgba(0, 0, 0, 0.03);
+  --ink-04: rgba(0, 0, 0, 0.04);
+  --ink-06: rgba(0, 0, 0, 0.06);
+  --ink-08: rgba(0, 0, 0, 0.08);
+  --ink-12: rgba(0, 0, 0, 0.12);
+  --ink-14: rgba(0, 0, 0, 0.14);
+  --outline-color: rgba(26, 26, 26, 0.35);
+  --scrollbar-thumb: rgba(151, 126, 89, 0.2);
+  --scrollbar-thumb-hover: rgba(151, 126, 89, 0.3);
+  --cli-accent: #a0713f;
+  --cli-accent-strong: #7c542d;
+  --font-ui:
+    "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-body: 14px;
+  --icon-sm: 20px;
+  --icon-md: 16px;
+  --icon-lg: 23px;
+  --btn-size-sm: 38px;
+  --btn-size-md: 42px;
+  width: 100%;
+  height: 100dvh;
+  padding: 0.75rem;
+  overflow: hidden;
+  color: var(--color-text);
+  background: var(--color-bg-page);
+  background-image:
+    linear-gradient(var(--ink-01) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ink-01) 1px, transparent 1px);
+  background-size: 40px 40px;
+  font-family: var(--font-ui);
+  font-weight: var(--fw-regular);
+}
+
+.explorer-page.theme-dark {
+  --color-text: #e9e3d6;
+  --color-text-light: #c1b8a8;
+  --color-text-lighter: #9b9283;
+  --color-bg-page: #17140f;
+  --panel-surface: #26211b;
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --surface-soft: rgba(255, 255, 255, 0.05);
+  --ink-01: rgba(255, 255, 255, 0.02);
+  --ink-03: rgba(255, 255, 255, 0.04);
+  --ink-04: rgba(255, 255, 255, 0.07);
+  --ink-06: rgba(255, 255, 255, 0.1);
+  --ink-08: rgba(255, 255, 255, 0.12);
+  --ink-12: rgba(255, 255, 255, 0.2);
+  --ink-14: rgba(255, 255, 255, 0.24);
+  --outline-color: rgba(229, 221, 205, 0.65);
+  --scrollbar-thumb: rgba(233, 227, 214, 0.16);
+  --scrollbar-thumb-hover: rgba(233, 227, 214, 0.26);
+  --cli-accent: #d7bc91;
+  --cli-accent-strong: #ead9bd;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 58px 320px minmax(0, 1fr);
+  gap: 0.75rem;
+  height: 100%;
+}
+
+.module-panel {
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel-surface);
+  box-shadow: 0 10px 28px var(--ink-06), inset 0 1px rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--outline-color);
+  outline-offset: 1px;
+}
+
+@media (max-width: 1200px) {
+  .layout-grid {
+    grid-template-columns: 52px 280px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 960px) {
+  .layout-grid {
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-rows: 45vh minmax(55vh, auto);
+  }
+}
+
+@media (max-width: 640px) {
+  .explorer-page {
+    padding: 0.5rem;
+  }
+
+  .layout-grid {
+    gap: 0.5rem;
+  }
+
+  .module-panel {
+    border-radius: 12px;
+  }
+}

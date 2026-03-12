@@ -67,3 +67,76 @@ const emit = defineEmits<{
     </div>
   </aside>
 </template>
+
+<style scoped>
+.toolbar-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.tool-actions,
+.tool-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.activity-bar {
+  align-self: start;
+  padding: 0.75rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 16px;
+  background: var(--panel-surface);
+}
+
+.tool-btn {
+  width: var(--btn-size-sm);
+  height: var(--btn-size-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-light);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tool-btn:hover,
+.tool-btn.active {
+  color: var(--color-text);
+  background: var(--ink-08);
+}
+
+.tool-btn svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.tool-bottom-link {
+  width: var(--btn-size-md);
+  height: var(--btn-size-md);
+  text-decoration: none;
+}
+
+.tool-bottom-link svg,
+.tool-note-btn svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-btn {
+    transition: none;
+  }
+}
+</style>

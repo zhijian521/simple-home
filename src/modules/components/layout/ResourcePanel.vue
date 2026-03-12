@@ -40,3 +40,35 @@ const emit = defineEmits<{
     />
   </aside>
 </template>
+
+<style scoped>
+.resource-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-header {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--ink-08);
+  background: var(--ink-03);
+}
+
+.resource-header h2 {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .resource-header {
+    height: 38px;
+  }
+}
+</style>

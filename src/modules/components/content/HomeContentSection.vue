@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
-import AiActionIcon from '../icons/AiActionIcon.vue'
-import ClearChatIcon from '../icons/ClearChatIcon.vue'
-import DownloadChatIcon from '../icons/DownloadChatIcon.vue'
-import SearchActionIcon from '../icons/SearchActionIcon.vue'
 import type { CliMessage } from '../../model/types'
+import CliComposer from './CliComposer.vue'
+import CliConversation from './CliConversation.vue'
 
 const props = defineProps<{
   searchKeyword: string
@@ -18,136 +15,6 @@ const emit = defineEmits<{
   (event: 'submit-search'): void
   (event: 'submit-ai-chat'): void
 }>()
-
-function onInput(event: Event) {
-  const target = event.target as HTMLInputElement | null
-  emit('update:search-keyword', target?.value ?? '')
-}
-
-function prefixByRole(role: CliMessage['role']) {
-  if (role === 'user') return '$ME:'
-  if (role === 'assistant') return '$AI:'
-  return '$SYS:'
-}
-
-function isPendingAssistantMessage(message: CliMessage) {
-  return message.role === 'assistant' && !message.content.trim()
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
-
-function renderMarkdown(content: string) {
-  const codeBlocks: string[] = []
-  let html = escapeHtml(content)
-
-  html = html.replace(/```([\w-]*)\n([\s\S]*?)```/g, (_match: string, language: string, code: string) => {
-    const languageClass = language ? ` class="language-${language}"` : ''
-    const block = `<pre class="md-code"><code${languageClass}>${code.trim()}</code></pre>`
-    codeBlocks.push(block)
-    return `@@CODE_BLOCK_${codeBlocks.length - 1}@@`
-  })
-
-  html = html
-    .replace(/^### (.*)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.*)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.*)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
-
-  html = html.replace(/(?:^|\n)([-*] .+(?:\n[-*] .+)*)/g, (match: string) => {
-    const items = match
-      .trim()
-      .split('\n')
-      .map((line: string) => line.replace(/^[-*] /, '').trim())
-      .map((line: string) => `<li>${line}</li>`)
-      .join('')
-
-    return `\n<ul>${items}</ul>`
-  })
-
-  html = html
-    .split(/\n{2,}/)
-    .map((block: string) => {
-      const trimmed = block.trim()
-      if (!trimmed) return ''
-      if (/^<(h1|h2|h3|ul|pre)/.test(trimmed)) return trimmed
-      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`
-    })
-    .join('')
-
-  return html.replace(/@@CODE_BLOCK_(\d+)@@/g, (_match: string, index: string) => codeBlocks[Number(index)] || '')
-}
-
-const cliLogRef = ref<HTMLDivElement | null>(null)
-
-const displayedMessages = computed<CliMessage[]>(() => {
-  if (props.cliMessages.length) return props.cliMessages
-
-  return [
-    {
-      id: 'placeholder-system-1',
-      role: 'system',
-      content: '输入内容后按 Enter 可直接发起 AI 对话；点击搜索按钮可用浏览器搜索当前关键词。',
-    },
-  ]
-})
-
-const showClearButton = computed(() => props.cliStarted || props.cliMessages.length > 0)
-
-function roleByMessage(role: CliMessage['role']) {
-  if (role === 'user') return 'ME'
-  if (role === 'assistant') return 'AI'
-  return 'SYS'
-}
-
-function createChatMarkdown(messages: CliMessage[]) {
-  const generatedAt = new Date().toLocaleString('zh-CN', { hour12: false })
-  const sections = messages.map((message) => {
-    return [`## ${roleByMessage(message.role)}`, '', message.content || '_empty_', ''].join('\n')
-  })
-
-  return ['# Simple Home Chat History', '', `Generated: ${generatedAt}`, '', ...sections].join('\n')
-}
-
-function downloadChatHistory() {
-  if (!props.cliMessages.length || typeof window === 'undefined') {
-    return
-  }
-
-  const content = createChatMarkdown(props.cliMessages)
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-
-  link.href = url
-  link.download = `simplehome-chat-${timestamp}.md`
-  link.click()
-
-  window.URL.revokeObjectURL(url)
-}
-
-watch(
-  () => props.cliMessages.map((message) => `${message.id}:${message.content.length}`).join('|'),
-  async () => {
-    if (!props.cliStarted || !props.cliMessages.length) return
-
-    await nextTick()
-    const cliLogElement = cliLogRef.value
-    if (!cliLogElement) return
-
-    cliLogElement.scrollTop = cliLogElement.scrollHeight
-  },
-)
 </script>
 
 <template>
@@ -156,75 +23,113 @@ watch(
       <h1 class="cli-brand">Simple Home</h1>
     </header>
 
-    <section class="cli-input-shell" aria-label="命令输入区">
-      <div class="cli-input-row">
-        <input
-          id="bookmark-search"
-          :value="searchKeyword"
-          type="text"
-          placeholder="search..."
-          aria-label="CLI 输入"
-          @input="onInput"
-          @keydown.enter.prevent="emit('submit-ai-chat')"
-        />
-        <button type="button" class="cli-btn" aria-label="搜索引擎" title="搜索引擎" @click="emit('submit-search')">
-          <SearchActionIcon />
-        </button>
-        <button
-          type="button"
-          class="cli-btn is-ai"
-          aria-label="AI 对话"
-          title="AI 对话"
-          @click="emit('submit-ai-chat')"
-        >
-          <AiActionIcon />
-        </button>
-      </div>
-    </section>
+    <CliComposer
+      :search-keyword="searchKeyword"
+      @update:search-keyword="emit('update:search-keyword', $event)"
+      @submit-search="emit('submit-search')"
+      @submit-ai-chat="emit('submit-ai-chat')"
+    />
 
-    <section class="cli-log-shell" aria-label="会话记录">
-      <div ref="cliLogRef" class="cli-log" role="log" aria-live="polite">
-        <div v-for="message in displayedMessages" :key="message.id" class="cli-line" :class="`is-${message.role}`">
-          <div class="cli-line-head">
-            <span class="cli-prefix" :data-role="message.role">{{ prefixByRole(message.role) }}</span>
-          </div>
-          <div v-if="isPendingAssistantMessage(message)" class="cli-text cli-thinking" aria-live="polite">
-            <span>thinking</span>
-            <span class="cli-thinking-dots" aria-hidden="true">
-              <span>.</span>
-              <span>.</span>
-              <span>.</span>
-            </span>
-          </div>
-          <div
-            v-else-if="message.role === 'assistant'"
-            class="cli-text cli-markdown"
-            v-html="renderMarkdown(message.content)"
-          />
-          <span v-else class="cli-text">{{ message.content }}</span>
-        </div>
-      </div>
-
-      <div v-if="showClearButton" class="cli-log-actions">
-        <button
-          type="button"
-          class="cli-clear-btn"
-          aria-label="下载聊天记录"
-          title="下载聊天记录"
-          @click="downloadChatHistory"
-        >
-          <DownloadChatIcon />
-        </button>
-        <button
-          type="button"
-          class="cli-clear-btn"
-          aria-label="清空会话"
-          title="清空会话"
-          @click="emit('clear-cli-session')"
-        >
-          <ClearChatIcon />
-        </button>
-      </div>
-    </section>
+    <CliConversation
+      :cli-started="cliStarted"
+      :cli-messages="cliMessages"
+      @clear-cli-session="emit('clear-cli-session')"
+    />
   </section>
 </template>
+
+<style scoped>
+.cli-shell {
+  width: min(760px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(0.75rem, 2vw, 1rem) 0;
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    gap 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:global(.content-scroll.is-home) .cli-shell.is-started {
+  transform: translateY(-4vh);
+}
+
+.cli-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  text-align: center;
+  user-select: none;
+}
+
+.cli-brand {
+  margin: 0;
+  color: #7c542d;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif SC', serif;
+  font-size: clamp(2.7rem, 6vw, 4.6rem);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: 0.02em;
+  text-shadow: 0 10px 22px rgba(143, 101, 51, 0.14);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .cli-brand {
+    color: transparent;
+    background: linear-gradient(
+      135deg,
+      rgba(105, 70, 34, 0.98) 0%,
+      rgba(168, 121, 69, 0.98) 42%,
+      rgba(118, 83, 44, 0.98) 100%
+    );
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+:global(.explorer-page.theme-dark) .cli-brand {
+  color: #ead9bd;
+  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  :global(.explorer-page.theme-dark) .cli-brand {
+    color: transparent;
+    background: linear-gradient(
+      135deg,
+      rgba(243, 233, 211, 0.98) 0%,
+      rgba(215, 188, 145, 0.98) 40%,
+      rgba(181, 152, 111, 0.98) 100%
+    );
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+@media (max-width: 640px) {
+  .cli-shell {
+    width: 100%;
+    padding: 0.4rem 0;
+  }
+
+  :global(.content-scroll.is-home) .cli-shell:not(.is-started),
+  :global(.content-scroll.is-home) .cli-shell.is-started {
+    transform: translateY(0);
+  }
+
+  .cli-brand {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+    letter-spacing: 0.04em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cli-shell {
+    transition: none;
+  }
+}
+</style>

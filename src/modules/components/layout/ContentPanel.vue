@@ -41,3 +41,61 @@ const emit = defineEmits<{
     </main>
   </section>
 </template>
+
+<style scoped>
+.content-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-header {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--ink-08);
+  background: var(--ink-03);
+}
+
+.content-title {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.content-scroll {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 1rem clamp(1.25rem, 3vw, 2.25rem) 2.25rem;
+  background: var(--panel-surface);
+}
+
+.content-scroll.is-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top center, rgba(160, 113, 63, 0.08) 0, transparent 34%),
+    radial-gradient(circle at bottom right, rgba(77, 123, 104, 0.08) 0, transparent 26%),
+    transparent;
+}
+
+@media (max-width: 640px) {
+  .content-header {
+    height: 38px;
+  }
+
+  .content-scroll {
+    padding: 0.8rem 0.85rem 1.2rem;
+  }
+
+  .content-scroll.is-home {
+    align-items: flex-start;
+  }
+}
+</style>
