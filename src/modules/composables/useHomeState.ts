@@ -1,14 +1,40 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { createInitialNotes, createInitialTree, HOME_BOOKMARK_ID, THEME_KEY } from '../model/data'
-import type { CliMessage, ModuleKey, ThemeMode } from '../model/types'
+import type {
+  CliMessage,
+  CreateBookmarkPayload,
+  CreateFolderPayload,
+  ModuleKey,
+  MoveFolderPayload,
+  MoveBookmarkPayload,
+  ThemeMode,
+  UpdateBookmarkPayload,
+  UpdateFolderPayload,
+} from '../model/types'
+import {
+  createBookmark,
+  createFolder,
+  deleteBookmark,
+  deleteFolder,
+  findBookmarkById,
+  getFirstBookmarkId,
+  loadBookmarkTree,
+  moveBookmark,
+  moveFolder,
+  saveBookmarkTree,
+  toggleFolderExpanded,
+  treeHasBookmark,
+  updateBookmark,
+  updateFolder,
+} from '../services/bookmarks'
 import { buildChatRequestMessages, isAbortError, streamChatReply } from '../services/chat'
 
 export function useHomeState() {
   const activeModule = ref<ModuleKey>('home')
   const themeMode = ref<ThemeMode>(initThemeMode())
-  const tree = ref(createInitialTree())
+  const tree = ref(loadBookmarkTree())
   const notes = ref(createInitialNotes())
-  const activeBookmarkId = ref(HOME_BOOKMARK_ID)
+  const activeBookmarkId = ref(resolveInitialBookmarkId(tree.value))
   const activeNoteId = ref(notes.value[0]?.id ?? '')
   const searchKeyword = ref('')
   const cliStarted = ref(false)
@@ -19,6 +45,33 @@ export function useHomeState() {
   const activeNote = computed(() => notes.value.find((note) => note.id === activeNoteId.value))
   const resourcePanelTitle = computed(() => (activeModule.value === 'home' ? '书签管理器' : '笔记列表'))
   const contentPanelTitle = computed(() => (activeModule.value === 'home' ? 'CLI 搜索与对话' : '笔记详情'))
+
+  watch(
+    themeMode,
+    (mode) => {
+      applyDocumentTheme(mode)
+    },
+    { immediate: true },
+  )
+
+  watch(
+    tree,
+    (nextTree) => {
+      saveBookmarkTree(nextTree)
+
+      if (!nextTree.length) {
+        activeBookmarkId.value = ''
+        return
+      }
+
+      if (activeBookmarkId.value && treeHasBookmark(nextTree, activeBookmarkId.value)) {
+        return
+      }
+
+      activeBookmarkId.value = resolveInitialBookmarkId(nextTree)
+    },
+    { deep: true },
+  )
 
   function goHome() {
     activeModule.value = 'home'
@@ -37,18 +90,47 @@ export function useHomeState() {
   }
 
   function toggleFolder(folderId: string) {
-    const folder = tree.value.find((item) => item.id === folderId)
-    if (folder) {
-      folder.expanded = !folder.expanded
-    }
+    tree.value = toggleFolderExpanded(tree.value, folderId)
   }
 
   function selectBookmark(bookmarkId: string) {
-    const targetUrl = findBookmarkUrl(tree.value, bookmarkId)
+    const targetUrl = findBookmarkById(tree.value, bookmarkId)?.url
     if (!targetUrl) return
 
     activeBookmarkId.value = bookmarkId
     window.open(targetUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  function createBookmarkFolder(payload: CreateFolderPayload) {
+    tree.value = createFolder(tree.value, payload)
+  }
+
+  function updateBookmarkFolder(payload: UpdateFolderPayload) {
+    tree.value = updateFolder(tree.value, payload.folderId, payload.name)
+  }
+
+  function deleteBookmarkFolder(folderId: string) {
+    tree.value = deleteFolder(tree.value, folderId)
+  }
+
+  function addBookmark(payload: CreateBookmarkPayload) {
+    tree.value = createBookmark(tree.value, payload)
+  }
+
+  function editBookmark(payload: UpdateBookmarkPayload) {
+    tree.value = updateBookmark(tree.value, payload)
+  }
+
+  function removeBookmark(bookmarkId: string) {
+    tree.value = deleteBookmark(tree.value, bookmarkId)
+  }
+
+  function repositionBookmark(payload: MoveBookmarkPayload) {
+    tree.value = moveBookmark(tree.value, payload)
+  }
+
+  function repositionFolder(payload: MoveFolderPayload) {
+    tree.value = moveFolder(tree.value, payload)
   }
 
   function selectNote(noteId: string) {
@@ -162,12 +244,24 @@ export function useHomeState() {
     toggleTheme,
     toggleFolder,
     selectBookmark,
+    createBookmarkFolder,
+    updateBookmarkFolder,
+    deleteBookmarkFolder,
+    addBookmark,
+    editBookmark,
+    removeBookmark,
+    repositionFolder,
+    repositionBookmark,
     selectNote,
     setSearchKeyword,
     clearCliSession,
     submitSearch,
     submitAiChat,
   }
+}
+
+function resolveInitialBookmarkId(tree: ReturnType<typeof createInitialTree>) {
+  return treeHasBookmark(tree, HOME_BOOKMARK_ID) ? HOME_BOOKMARK_ID : getFirstBookmarkId(tree)
 }
 
 function initThemeMode(): ThemeMode {
@@ -177,6 +271,15 @@ function initThemeMode(): ThemeMode {
   if (saved === 'light' || saved === 'dark') return saved
 
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+function applyDocumentTheme(mode: ThemeMode) {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.body.classList.add('simplehome-app')
+  document.body.classList.toggle('simplehome-theme-dark', mode === 'dark')
 }
 
 function pushMessage(messages: CliMessage[], role: CliMessage['role'], content: string) {
@@ -215,18 +318,4 @@ function ensureCliStarted(cliStarted: { value: boolean }, messages: CliMessage[]
 
   cliStarted.value = true
   pushMessage(messages, 'system', 'SimpleHome CLI ready. 输入指令内容后选择执行动作。')
-}
-
-function findBookmarkUrl(
-  tree: Array<{ bookmarks: Array<{ id: string; url: string }> }>,
-  bookmarkId: string,
-): string | undefined {
-  for (const folder of tree) {
-    const bookmark = folder.bookmarks.find((item) => item.id === bookmarkId)
-    if (bookmark) {
-      return bookmark.url
-    }
-  }
-
-  return undefined
 }

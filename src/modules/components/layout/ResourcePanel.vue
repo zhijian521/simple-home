@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import HomeResourceSection from '../resource/HomeResourceSection.vue'
 import NotesResourceSection from '../resource/NotesResourceSection.vue'
-import type { ModuleKey, NoteItem, TreeFolder } from '../../model/types'
+import type {
+  CreateBookmarkPayload,
+  CreateFolderPayload,
+  ModuleKey,
+  MoveFolderPayload,
+  MoveBookmarkPayload,
+  NoteItem,
+  TreeFolder,
+  UpdateBookmarkPayload,
+  UpdateFolderPayload,
+} from '../../model/types'
 
 defineProps<{
   activeModule: ModuleKey
@@ -15,6 +25,14 @@ defineProps<{
 const emit = defineEmits<{
   (event: 'toggle-folder', folderId: string): void
   (event: 'select-bookmark', bookmarkId: string): void
+  (event: 'create-folder', payload: CreateFolderPayload): void
+  (event: 'update-folder', payload: UpdateFolderPayload): void
+  (event: 'delete-folder', folderId: string): void
+  (event: 'create-bookmark', payload: CreateBookmarkPayload): void
+  (event: 'update-bookmark', payload: UpdateBookmarkPayload): void
+  (event: 'delete-bookmark', bookmarkId: string): void
+  (event: 'move-folder', payload: MoveFolderPayload): void
+  (event: 'move-bookmark', payload: MoveBookmarkPayload): void
   (event: 'select-note', noteId: string): void
 }>()
 </script>
@@ -31,6 +49,14 @@ const emit = defineEmits<{
       :active-bookmark-id="activeBookmarkId"
       @toggle-folder="emit('toggle-folder', $event)"
       @select-bookmark="emit('select-bookmark', $event)"
+      @create-folder="emit('create-folder', $event)"
+      @update-folder="emit('update-folder', $event)"
+      @delete-folder="emit('delete-folder', $event)"
+      @create-bookmark="emit('create-bookmark', $event)"
+      @update-bookmark="emit('update-bookmark', $event)"
+      @delete-bookmark="emit('delete-bookmark', $event)"
+      @move-folder="emit('move-folder', $event)"
+      @move-bookmark="emit('move-bookmark', $event)"
     />
     <NotesResourceSection
       v-else
@@ -60,10 +86,9 @@ const emit = defineEmits<{
 .resource-header h2 {
   margin: 0;
   color: var(--color-text-light);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 @media (max-width: 640px) {

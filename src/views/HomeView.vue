@@ -20,6 +20,14 @@ const {
   toggleTheme,
   toggleFolder,
   selectBookmark,
+  createBookmarkFolder,
+  updateBookmarkFolder,
+  deleteBookmarkFolder,
+  addBookmark,
+  editBookmark,
+  removeBookmark,
+  repositionFolder,
+  repositionBookmark,
   goHome,
   goNotes,
   selectNote,
@@ -50,6 +58,14 @@ const {
         :active-note-id="activeNoteId"
         @toggle-folder="toggleFolder"
         @select-bookmark="selectBookmark"
+        @create-folder="createBookmarkFolder"
+        @update-folder="updateBookmarkFolder"
+        @delete-folder="deleteBookmarkFolder"
+        @create-bookmark="addBookmark"
+        @update-bookmark="editBookmark"
+        @delete-bookmark="removeBookmark"
+        @move-folder="repositionFolder"
+        @move-bookmark="repositionBookmark"
         @select-note="selectNote"
       />
 

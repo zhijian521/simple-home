@@ -9,6 +9,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'daily-tools',
       name: '常用工具',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'chatgpt', title: 'ChatGPT', url: 'https://chatgpt.com' },
         { id: 'google-search', title: 'Google', url: 'https://www.google.com' },
@@ -21,6 +22,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'dev-tech',
       name: '开发技术',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'github', title: 'GitHub', url: 'https://github.com' },
         { id: 'mdn', title: 'MDN', url: 'https://developer.mozilla.org' },
@@ -34,6 +36,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'design-product',
       name: '设计产品',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'figma', title: 'Figma', url: 'https://www.figma.com' },
         { id: 'dribbble', title: 'Dribbble', url: 'https://dribbble.com' },
@@ -45,6 +48,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'collaboration',
       name: '协作沟通',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'slack', title: 'Slack', url: 'https://slack.com' },
         { id: 'discord', title: 'Discord', url: 'https://discord.com' },
@@ -56,6 +60,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'news-community',
       name: '资讯社区',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'hacker-news', title: 'Hacker News', url: 'https://news.ycombinator.com' },
         { id: 'product-hunt', title: 'Product Hunt', url: 'https://www.producthunt.com' },
@@ -67,6 +72,7 @@ export function createInitialTree(): TreeFolder[] {
       id: 'learning',
       name: '学习资源',
       expanded: false,
+      children: [],
       bookmarks: [
         { id: 'youtube', title: 'YouTube', url: 'https://www.youtube.com' },
         { id: 'coursera', title: 'Coursera', url: 'https://www.coursera.org' },

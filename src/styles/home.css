@@ -1,3 +1,4 @@
+body.simplehome-app,
 .explorer-page {
   --color-text: #3a3a3a;
   --color-text-light: #666;
@@ -44,6 +45,7 @@
   font-weight: var(--fw-regular);
 }
 
+body.simplehome-app.simplehome-theme-dark,
 .explorer-page.theme-dark {
   --color-text: #e9e3d6;
   --color-text-light: #c1b8a8;

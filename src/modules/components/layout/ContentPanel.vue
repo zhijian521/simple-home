@@ -61,10 +61,9 @@ const emit = defineEmits<{
 .content-title {
   margin: 0;
   color: var(--color-text-light);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .content-scroll {
