@@ -52,6 +52,11 @@ body {
   background-color: var(--color-bg);
 }
 
+body.simplehome-app {
+  margin: 0;
+  padding: 0;
+}
+
 button,
 input {
   font: inherit;

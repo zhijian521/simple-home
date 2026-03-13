@@ -45,11 +45,15 @@ body.simplehome-app,
   font-weight: var(--fw-regular);
 }
 
+body.simplehome-app {
+  padding: 0;
+}
+
 body.simplehome-app.simplehome-theme-dark,
 .explorer-page.theme-dark {
   --color-text: #e9e3d6;
-  --color-text-light: #c1b8a8;
-  --color-text-lighter: #9b9283;
+  --color-text-light: #d3cab9;
+  --color-text-lighter: #b0a694;
   --color-bg-page: #17140f;
   --panel-surface: #26211b;
   --panel-border: rgba(255, 255, 255, 0.12);
